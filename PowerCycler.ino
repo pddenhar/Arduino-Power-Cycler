@@ -66,7 +66,7 @@ void handleClient(EthernetClient client) {
 				client.println("HTTP/1.1 200 OK");
 				client.println("Content-Type: text/html");
 				client.println("Connection: close");  // the connection will be closed after completion of the response
-				client.println("Refresh: 10");  // refresh the page automatically every 5 sec
+				client.println("Refresh: 10");  // refresh the page automatically every 10 sec
 				client.println();
 				client.println("<!DOCTYPE HTML>");
 				client.println("<html><body>");
@@ -81,6 +81,7 @@ void handleClient(EthernetClient client) {
 					client.println("No clients have pinged the server yet.<br>");
 				} else {
 					for (int i = 0; i < numStats; i++) {
+						client.print("<b>");
 						// the IP address is stored as a uint32_t, but we want to print it out in the standard xxx.xxx.xxx.xxx notation
 						// to do this we loop through the 32 bit address in 8 byte increments by casting it to an array of uint8_t
 						for (int j = 0; j < 4; j++)
@@ -88,7 +89,7 @@ void handleClient(EthernetClient client) {
 							client.print(((uint8_t*)&(stats[i].address))[j], DEC);
 							if (j < 3) client.print(".");
 						}
-						client.print(" Last seen at reboot: ");
+						client.print("</b> - Last seen at reboot: ");
 						client.print(stats[i].lastReboot, DEC);
 						client.println("<br />");
 					}
