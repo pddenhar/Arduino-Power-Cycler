@@ -12,7 +12,7 @@ int rebootCount = 0;
 
 byte mac[] = {
 	0x90, 0xA2, 0xDA, 0x00, 0xCB, 0x86 };
-IPAddress ip(192, 168, 1, 220);
+IPAddress ip(192, 168, 8, 220);
 
 unsigned int localPort = 6666;      // local port to listen on
 
@@ -50,6 +50,10 @@ void loop() {
 	}
 
 	handleUDPPing();
+
+	if ((millis() - rebootTime) > 90 * (long)1000) {
+		togglePower();
+	}
 }
 
 void handleClient(EthernetClient client) {
@@ -145,14 +149,11 @@ void handleUDPPing() {
 			numStats++;
 		}
 	}
-	if ((millis() - rebootTime) > 60 * (long)1000) {
-		togglePower();
-	}
 }
 
 void togglePower() {
 	digitalWrite(powerPin, LOW);
-	delay(1000);
+	delay(2000);
 	digitalWrite(powerPin, HIGH);
 	rebootCount += 1;
 	Serial.print("Reboot Count: ");
