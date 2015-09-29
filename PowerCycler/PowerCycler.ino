@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <util.h>
+//#include <util.h>
 #include <EthernetUdp.h>
 #include <EthernetServer.h>
 #include <Ethernet.h>
@@ -24,6 +24,7 @@ EthernetServer webServer(80);
 typedef struct {
 	uint32_t address;
 	int lastReboot;
+  int missingPings;
 } rebootStat;
 
 rebootStat stats[MAX_STATS];
@@ -52,6 +53,7 @@ void loop() {
 	handleUDPPing();
 
 	if ((millis() - rebootTime) > 90 * (long)1000) {
+    recordMissedPings();
 		togglePower();
 	}
 }
@@ -95,6 +97,8 @@ void handleClient(EthernetClient client) {
 						}
 						client.print("</b> - Last seen at reboot: ");
 						client.print(stats[i].lastReboot, DEC);
+            client.print(" Failed Boots: ");
+            client.print(stats[i].missingPings, DEC);
 						client.println("<br />");
 					}
 				}
@@ -149,6 +153,14 @@ void handleUDPPing() {
 			numStats++;
 		}
 	}
+}
+
+void recordMissedPings() {
+  for (int i = 0; i < numStats; i++) {
+    if(stats[i].lastReboot != rebootCount) {
+      stats[i].missingPings++;
+    }
+  }
 }
 
 void togglePower() {
